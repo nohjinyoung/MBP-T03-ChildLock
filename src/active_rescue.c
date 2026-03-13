@@ -1,7 +1,32 @@
 #include <stdio.h>
 #include "active_rescue.h"
 
-// 능동적 구조 모드 액션 실행 (병렬 처리 시뮬레이션)
+static void handleStateIdle(RescueState *state, SensorData *sensors) {
+    if (sensors->engineOff && sensors->driverAway) {
+        printf("[시스템] 선행 조건 만족. 실내 모니터링을 시작합니다.\n");
+        *state = STATE_MONITORING;
+    }
+}
+
+static void handleStateMonitoring(RescueState *state, SensorData *sensors) {
+    if (sensors->temperature >= 35 || sensors->abnormalBreathing) {
+        *state = STATE_ACTIVE_RESCUE;
+    }
+}
+
+static void handleStateWaitScan(RescueState *state, SensorData *sensors) {
+    if (sensors->qrScanned) {
+        printf("\n[시스템] 외부 구조자 QR 스캔 감지. 인증을 시도합니다...\n");
+        if (sensors->authSuccess) {
+            printf("[시스템] 인증 성공! 도어 잠금을 강제 해제(Unlock)합니다.\n");
+            *state = STATE_RESCUED;
+        } else {
+            printf("[시스템] 인증 실패! 구조용 QR을 다시 스캔해 주세요.\n");
+            sensors->qrScanned = false; // 재스캔 대기
+        }
+    }
+}
+
 void executeRescueActions() {
     printf("\n[경고] 위험 상황 감지! 능동적 구조 모드를 실행합니다.\n");
     printf(" 1. [윈도우 제어] 창문 일부 개방 (환기 진행)\n");
@@ -9,21 +34,15 @@ void executeRescueActions() {
     printf(" 3. [디스플레이 제어] B필러 디스플레이 구조용 QR/NFC 활성화\n");
 }
 
-// 메인 로직: 상태에 따라 동작 결정
+
 void runSystem(RescueState *state, SensorData *sensors) {
     switch (*state) {
         case STATE_IDLE:
-            if (sensors->engineOff && sensors->driverAway) {
-                printf("[시스템] 선행 조건 만족. 실내 모니터링을 시작합니다.\n");
-                *state = STATE_MONITORING;
-            }
+            handleStateIdle(state, sensors);
             break;
 
         case STATE_MONITORING:
-            // 위험 상황 감지 로직 (온도 38도 이상이거나 이상 호흡 감지)
-            if (sensors->temperature >= 38 || sensors->abnormalBreathing) {
-                *state = STATE_ACTIVE_RESCUE;
-            }
+            handleStateMonitoring(state, sensors);
             break;
 
         case STATE_ACTIVE_RESCUE:
@@ -32,16 +51,7 @@ void runSystem(RescueState *state, SensorData *sensors) {
             break;
 
         case STATE_WAIT_SCAN:
-            if (sensors->qrScanned) {
-                printf("\n[시스템] 외부 구조자 QR 스캔 감지. 인증을 시도합니다...\n");
-                if (sensors->authSuccess) {
-                    printf("[시스템] 인증 성공! 도어 잠금을 강제 해제(Unlock)합니다.\n");
-                    *state = STATE_RESCUED;
-                } else {
-                    printf("[시스템] 인증 실패! 구조용 QR을 다시 스캔해 주세요.\n");
-                    sensors->qrScanned = false; // 재스캔 대기
-                }
-            }
+            handleStateWaitScan(state, sensors);
             break;
 
         case STATE_RESCUED:
