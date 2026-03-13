@@ -1,19 +1,24 @@
 #include <stdio.h>
 #include "active_rescue.h"
 
-static void handleStateIdle(RescueState *state, SensorData *sensors) {
+// --- [보조 함수들] ---
+
+// 1. 센서 값을 읽기만 하므로 안전을 위해 const 추가
+static void handleStateIdle(RescueState *state, const SensorData *sensors) {
     if (sensors->engineOff && sensors->driverAway) {
         printf("[시스템] 선행 조건 만족. 실내 모니터링을 시작합니다.\n");
         *state = STATE_MONITORING;
     }
 }
 
-static void handleStateMonitoring(RescueState *state, SensorData *sensors) {
+// 2. 센서 값을 읽기만 하므로 안전을 위해 const 추가
+static void handleStateMonitoring(RescueState *state, const SensorData *sensors) {
     if (sensors->temperature >= 35 || sensors->abnormalBreathing) {
         *state = STATE_ACTIVE_RESCUE;
     }
 }
 
+// 3. 여기서는 센서 값을 변경(qrScanned = false)하므로 const를 붙이지 않음!
 static void handleStateWaitScan(RescueState *state, SensorData *sensors) {
     if (sensors->qrScanned) {
         printf("\n[시스템] 외부 구조자 QR 스캔 감지. 인증을 시도합니다...\n");
@@ -34,6 +39,8 @@ void executeRescueActions() {
     printf(" 3. [디스플레이 제어] B필러 디스플레이 구조용 QR/NFC 활성화\n");
 }
 
+
+// --- [메인 함수] ---
 
 void runSystem(RescueState *state, SensorData *sensors) {
     switch (*state) {
