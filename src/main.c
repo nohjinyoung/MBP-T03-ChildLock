@@ -1,13 +1,26 @@
 #include <stdio.h>
-#include <windows.h> // Sleep 함수 사용 (리눅스의 경우 <unistd.h> 추가)
 #include "active_rescue.h"
 
+// 운영체제(OS)에 따른 헤더 및 Sleep 함수 분기 처리
+#ifdef _WIN32
+    #include <windows.h>
+    #define DELAY_1SEC() Sleep(1000) // 윈도우는 밀리초 단위
+    #define DELAY_2SEC() Sleep(2000)
+#else
+    #include <unistd.h>
+    #define DELAY_1SEC() sleep(1)    // 리눅스는 초 단위
+    #define DELAY_2SEC() sleep(2)
+#endif
+
 int main() {
+    // 터미널 한글 깨짐 방지는 윈도우 환경에서만 실행
+#ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
+#endif
 
     RescueState currentState = STATE_IDLE;
     
-    // 초기 센서 상태 세팅 (시나리오: 시동 OFF, 운전자 이탈)
+    // 초기 센서 상태 세팅
     SensorData currentSensors = {
         .engineOff = true,
         .driverAway = true,
@@ -19,24 +32,20 @@ int main() {
 
     printf("=== UC-02 생체신호 연동 비상 대응 시스템 시뮬레이션 ===\n");
 
-    // 시스템 무한 루프 (실제 차량 제어기처럼 동작)
     while (currentState != STATE_RESCUED) {
-        // 상태별 로직 실행
         runSystem(&currentState, &currentSensors);
 
-        // 시나리오 시뮬레이션을 위한 데이터 변경 (시간 경과 가정)
         if (currentState == STATE_MONITORING) {
             printf("[센서] 현재 실내 온도: %d도\n", currentSensors.temperature);
-            currentSensors.temperature += 5; // 온도가 점점 오르는 상황 가정
+            currentSensors.temperature += 5; 
         } 
         else if (currentState == STATE_WAIT_SCAN) {
-            // 구조자가 접근하여 QR을 스캔하고 인증에 성공한 상황 가정
-            Sleep(2000); 
+            DELAY_2SEC(); 
             currentSensors.qrScanned = true;
             currentSensors.authSuccess = true;
         }
 
-        Sleep(1000); // 1초 대기
+        DELAY_1SEC();
     }
 
     printf("=== 구조 완료! 시스템 종료 ===\n");
