@@ -1,0 +1,21 @@
+# CMake generation dependency list for this directory.
+C:/mingw32/share/cmake-3.27/Modules/CMakeCInformation.cmake
+C:/mingw32/share/cmake-3.27/Modules/CMakeCommonLanguageInclude.cmake
+C:/mingw32/share/cmake-3.27/Modules/CMakeGenericSystem.cmake
+C:/mingw32/share/cmake-3.27/Modules/CMakeInitializeConfigs.cmake
+C:/mingw32/share/cmake-3.27/Modules/CMakeLanguageInformation.cmake
+C:/mingw32/share/cmake-3.27/Modules/CMakeRCInformation.cmake
+C:/mingw32/share/cmake-3.27/Modules/CMakeSystemSpecificInformation.cmake
+C:/mingw32/share/cmake-3.27/Modules/CMakeSystemSpecificInitialize.cmake
+C:/mingw32/share/cmake-3.27/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+C:/mingw32/share/cmake-3.27/Modules/Compiler/MSVC-C.cmake
+C:/mingw32/share/cmake-3.27/Modules/Compiler/MSVC.cmake
+C:/mingw32/share/cmake-3.27/Modules/Platform/Windows-Initialize.cmake
+C:/mingw32/share/cmake-3.27/Modules/Platform/Windows-MSVC-C.cmake
+C:/mingw32/share/cmake-3.27/Modules/Platform/Windows-MSVC.cmake
+C:/mingw32/share/cmake-3.27/Modules/Platform/Windows.cmake
+C:/mingw32/share/cmake-3.27/Modules/Platform/WindowsPaths.cmake
+D:/CarPart/MBP-T03-ChildLock/CMakeLists.txt
+D:/CarPart/MBP-T03-ChildLock/build/CMakeFiles/3.27.8/CMakeCCompiler.cmake
+D:/CarPart/MBP-T03-ChildLock/build/CMakeFiles/3.27.8/CMakeRCCompiler.cmake
+D:/CarPart/MBP-T03-ChildLock/build/CMakeFiles/3.27.8/CMakeSystem.cmake

@@ -1,0 +1,10 @@
+^D:\CARPART\MBP-T03-CHILDLOCK\BUILD\CMAKEFILES\145DBAC2B26961727DD957BB73487CBC\GENERATE.STAMP.RULE
+setlocal
+C:\mingw32\bin\cmake.exe -SD:/CarPart/MBP-T03-ChildLock -BD:/CarPart/MBP-T03-ChildLock/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/CarPart/MBP-T03-ChildLock/build/ChildLockSystem.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
