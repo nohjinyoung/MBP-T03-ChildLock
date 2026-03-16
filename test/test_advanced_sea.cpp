@@ -1,14 +1,15 @@
 /**
  * @file test_advanced_sea.cpp
- * @brief Google Test cases for the Advanced SEA use case.
+ * @brief 지능형 하차 보조(Advanced SEA) Google Test 단위 테스트
  * @date 2026-03-16
- * @note Implemented by OpenAI Codex GPT-5.
+ * @note Implemented by OpenAI Codex GPT-5
  */
 
 #include <gtest/gtest.h>
 
 #include "advanced_sea.h"
 
+// 위험 물체가 감지되지 않을 때 잠금 해제가 허용되는지 검증
 TEST(AdvancedSeaTest, AllowsUnlockWhenNoHazardIsDetected)
 {
     const AdvancedSeaInput input = { true, true, false, 0 };
@@ -22,6 +23,7 @@ TEST(AdvancedSeaTest, AllowsUnlockWhenNoHazardIsDetected)
     EXPECT_FALSE(output.audible_warning);
 }
 
+// 고속 접근 물체가 감지되면 잠금이 유지되는지 검증
 TEST(AdvancedSeaTest, KeepsLockWhenFastObjectApproaches)
 {
     const AdvancedSeaInput input = {
@@ -40,6 +42,7 @@ TEST(AdvancedSeaTest, KeepsLockWhenFastObjectApproaches)
     EXPECT_TRUE(output.audible_warning);
 }
 
+// 차일드 락이 꺼져 있으면 위험 감지와 무관하게 해제가 허용되는지 검증
 TEST(AdvancedSeaTest, IgnoresHazardLogicWhenChildLockIsOff)
 {
     const AdvancedSeaInput input = {
@@ -56,6 +59,7 @@ TEST(AdvancedSeaTest, IgnoresHazardLogicWhenChildLockIsOff)
     EXPECT_FALSE(output.keep_locked);
 }
 
+// 잠금 해제 요청이 없으면 출력 상태가 기본값으로 유지되는지 검증
 TEST(AdvancedSeaTest, DoesNothingWhenUnlockWasNotRequested)
 {
     const AdvancedSeaInput input = { true, false, true, 100 };
