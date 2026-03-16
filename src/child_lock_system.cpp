@@ -92,7 +92,10 @@ LockStatus get_door_status(DoorIndex door) {
 #ifdef __CPPCHECK__
 
 // cppcheck-suppress unusedFunction
-static void _dummy_call_for_analysis(void) {
+// cppcheck-suppress unusedFunction
+// cppcheck-suppress unusedFunction
+static void _dummy_call_for_analysis(void)
+{
     initialize_system();
     update_hmi_display();
     process_master_button_event(LOCK_CMD_SET);
