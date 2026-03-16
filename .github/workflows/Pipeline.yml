@@ -1,0 +1,59 @@
+name: CI/CT Pipeline (Mobius Bootcamp)
+
+on:
+  pull_request:
+    branches: [ "main", "1_advanced_sea", "2_active_rescue", "3_crash_unlock", "4_hybrid_control_visibility"]
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc g++ cmake cppcheck gcovr
+          pip install lizard
+
+      - name: Build Code (Compile Check)
+        run: |
+          cmake -B build -DENABLE_COVERAGE=ON
+          cmake --build build
+
+      - name: Static Analysis (CppCheck)
+        run: |
+          cppcheck \
+          --enable=all \
+          --inconclusive \
+          --error-exitcode=1 \
+          -I include/ \
+          --suppress=missingIncludeSystem \
+          --suppress=unmatchedSuppression \
+          --suppress=unusedFunction \
+          src/
+
+      - name: Check Complexity & Function Length
+        run: |
+          echo "🔍 순환 복잡도(10 이하) 및 함수 라인 수(80 이하) 검사"
+          lizard -C 10 -L 80 -w src/
+
+      - name: Run Unit Tests
+        working-directory: ${{github.workspace}}/build
+        run: ctest --output-on-failure
+
+      - name: Check Test Coverage (80% 이상)
+        working-directory: ${{github.workspace}}/build
+        run: |
+          echo "📊 라인 커버리지 80% 이상 검사"
+          gcovr -r ../ --html --html-details -o coverage.html
+          gcovr -r ../ --fail-under-line 80
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Code-Coverage-Report
+          path: build/coverage*.html
