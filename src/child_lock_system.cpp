@@ -89,7 +89,7 @@ LockStatus get_door_status(DoorIndex door) {
  * @brief CppCheck 정적 분석 통과를 위한 더미 호출
  * 실제 빌드에는 포함되지 않으며, cppcheck 분석 시에만 사용됩니다.
  */
-#ifdef __CPPCHECK__
+#ifndef __CPPCHECK__
 
 // cppcheck-suppress unusedFunction
 // cppcheck-suppress unusedFunction
