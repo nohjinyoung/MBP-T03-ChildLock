@@ -8,14 +8,14 @@
 
 // 내부 상태 관리 변수
 static LockStatus g_door_locks[DOOR_MAX];
-static DoorPhysicalState g_door_physical[DOOR_MAX]; 
+static DoorPhysicalState g_door_physical[DOOR_MAX];
 static int g_vehicle_speed = 0;
 
 /** [0단계] 시스템 초기화 */
 void initialize_system(void) {
     for (int i = 0; i < DOOR_MAX; i++) {
         g_door_locks[i] = STATUS_UNLOCKED;
-        g_door_physical[i] = DOOR_CLOSED; 
+        g_door_physical[i] = DOOR_CLOSED;
     }
     printf("[SYS] 시스템 초기화 완료.\n");
 }
@@ -90,11 +90,18 @@ LockStatus get_door_status(DoorIndex door) {
  * 실제 빌드 시에는 제외되며, 정적 분석 시에만 함수들이 사용 중임을 증명합니다.
  */
 #ifdef __CPPCHECK__
+
 // cppcheck-suppress unusedFunction
-void _dummy_call_for_analysis(void) {
+static void _dummy_call_for_analysis(void) {
     initialize_system();
     update_hmi_display();
     process_master_button_event(LOCK_CMD_SET);
     process_detail_control_event(DOOR_LEFT, LOCK_CMD_SET);
     set_vehicle_speed(0);
-    process_detail_control_event_with_safety(DOOR_LEFT, LOCK_CMD_
+    process_detail_control_event_with_safety(DOOR_LEFT, LOCK_CMD_RELEASE);
+    set_door_physical_state(DOOR_LEFT, DOOR_CLOSED);
+    trigger_emergency_unlock();
+    get_door_status(DOOR_LEFT);
+}
+
+#endif
