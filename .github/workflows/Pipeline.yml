@@ -1,8 +1,8 @@
 name: CI/CT Pipeline (Mobius Bootcamp)
 
 on:
-  pull_request:
-    branches: [ "main", "1_advanced_sea", "2_active_rescue", "3_crash_unlock", "4_hybrid_control_visibility"]
+  pull_request: # PR이 올라올 때마다 실행 (슬라이드 1의 PR/Action 준수)
+    branches: [ "main", "1_advanced_sea", "2_active_rescue",  "3_crash_unlock", "4_hybrid_control_visibility"]
 
 jobs:
   quality-gate:
@@ -12,38 +12,38 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 1. 필수 도구 설치 (C/C++ 빌드 도구, 정적 분석기, 파이썬 기반 lizard 등)
       - name: Install Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc g++ cmake cppcheck gcovr
           pip install lizard
 
+      # 2. 가장 중요한 "컴파일 됨" 우선순위 체크 (슬라이드 1)
       - name: Build Code (Compile Check)
         run: |
           cmake -B build -DENABLE_COVERAGE=ON
           cmake --build build
 
+      # 3. CppCheck 정적 분석 (잠재적 버그, 메모리 누수 확인)
       - name: Static Analysis (CppCheck)
-        run: |
-          cppcheck \
-          --enable=all \
-          --inconclusive \
-          --error-exitcode=1 \
-          -I include/ \
-          --suppress=missingIncludeSystem \
-          --suppress=unmatchedSuppression \
-          --suppress=unusedFunction \
-          src/
-
+        run: cppcheck --enable=all --inconclusive --error-exitcode=1 -I include/ --suppress=missingIncludeSystem --suppress=unmatchedSuppression --suppress=unusedFunction src/
+      
+      # 4. 소스코드 요건 지표 검사 (슬라이드 2)
+      # lizard를 통해 순환복잡도(-C 10)와 함수 길이(-L 80) 제한 설정
+      # 위반되는 함수가 하나라도 있으면 CI 실패(에러) 처리됨
       - name: Check Complexity & Function Length
         run: |
           echo "🔍 순환 복잡도(10 이하) 및 함수 라인 수(80 이하) 검사"
           lizard -C 10 -L 80 -w src/
 
+      # 5. 단위 테스트 실행 (TDD 원칙 준수)
       - name: Run Unit Tests
         working-directory: ${{github.workspace}}/build
         run: ctest --output-on-failure
 
+      # 6. 라인 커버리지 80% 이상 강제 (슬라이드 2)
+      # 테스트 결과가 80% 미만이면 CI 실패 처리됨
       - name: Check Test Coverage (80% 이상)
         working-directory: ${{github.workspace}}/build
         run: |
@@ -51,6 +51,7 @@ jobs:
           gcovr -r ../ --html --html-details -o coverage.html
           gcovr -r ../ --fail-under-line 80
 
+      # (선택) 커버리지 HTML 리포트를 PR 결과물로 제공
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         if: always()
