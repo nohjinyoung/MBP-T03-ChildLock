@@ -3,7 +3,6 @@
  * @brief 하이브리드 차일드 락 제어 시스템 최종 통합 구현부
  */
 
-#include "pch.h"
 #include "child_lock_system.h"
 #include <stdio.h>
 
