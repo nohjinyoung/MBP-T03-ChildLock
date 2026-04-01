@@ -1,7 +1,7 @@
 /**
  * @file advanced_sea.c
- * @brief 지능형 하차 보조(Advanced SEA) 잠금 유지 로직 구현부
- * @date 2026-03-16
+ * @brief Implementation of UC-01 Advanced SEA lock override logic.
+ * @date 2026-04-01
  * @note Implemented by OpenAI Codex GPT-5
  */
 
@@ -12,13 +12,13 @@ enum {
 };
 
 /**
- * @brief 기본 안전 상태의 출력값을 설정
- * @param output 기본값을 기록할 출력 구조체
- * @return 없음
- * @date 2026-03-16
+ * @brief Set the default safe output when no hazard is active.
+ * @param output Output structure to initialize.
+ * @return None.
+ * @date 2026-04-01
  * @note Implemented by OpenAI Codex GPT-5
  */
-static void set_safe_output(AdvancedSeaOutput *output)
+static void set_default_output(AdvancedSeaOutput *output)
 {
     output->keep_locked = false;
     output->unlock_allowed = true;
@@ -27,10 +27,40 @@ static void set_safe_output(AdvancedSeaOutput *output)
 }
 
 /**
- * @brief 감지된 물체를 위험 접근으로 볼지 판단
- * @param input 현재 잠금 해제 요청에 대한 입력 신호
- * @return 위험 상황이면 true, 아니면 false
- * @date 2026-03-16
+ * @brief Set the output for a detected rear-side hazard.
+ * @param output Output structure to update.
+ * @return None.
+ * @date 2026-04-01
+ * @note Implemented by OpenAI Codex GPT-5
+ */
+static void set_hazard_block_output(AdvancedSeaOutput *output)
+{
+    output->keep_locked = true;
+    output->unlock_allowed = false;
+    output->cluster_warning = true;
+    output->audible_warning = true;
+}
+
+/**
+ * @brief Set the fail-safe output for a sensor diagnostic fault.
+ * @param output Output structure to update.
+ * @return None.
+ * @date 2026-04-01
+ * @note Implemented by OpenAI Codex GPT-5
+ */
+static void set_sensor_fault_output(AdvancedSeaOutput *output)
+{
+    output->keep_locked = true;
+    output->unlock_allowed = false;
+    output->cluster_warning = true;
+    output->audible_warning = false;
+}
+
+/**
+ * @brief Check whether the detected object is a dangerous approach.
+ * @param input Current input signals for the unlock request.
+ * @return true when a dangerous approach is detected, otherwise false.
+ * @date 2026-04-01
  * @note Implemented by OpenAI Codex GPT-5
  */
 static bool is_danger_detected(const AdvancedSeaInput *input)
@@ -40,10 +70,10 @@ static bool is_danger_detected(const AdvancedSeaInput *input)
 }
 
 /**
- * @brief 위험 접근 속도 기준값을 반환
- * @param 없음
- * @return 위험 속도 기준값(km/h)
- * @date 2026-03-16
+ * @brief Return the dangerous approach threshold used by UC-01.
+ * @param None.
+ * @return Dangerous approach threshold in km/h.
+ * @date 2026-04-01
  * @note Implemented by OpenAI Codex GPT-5
  */
 int advanced_sea_get_danger_speed_threshold(void)
@@ -52,11 +82,11 @@ int advanced_sea_get_danger_speed_threshold(void)
 }
 
 /**
- * @brief 잠금 해제 요청을 차단해야 하는지 평가
- * @param input 현재 잠금 해제 요청에 대한 입력 신호
- * @param output 판단 결과를 기록할 출력 구조체
- * @return 없음
- * @date 2026-03-16
+ * @brief Evaluate whether Advanced SEA must override the unlock request.
+ * @param input Current input signals for the unlock request.
+ * @param output Output structure that receives the decision result.
+ * @return None.
+ * @date 2026-04-01
  * @note Implemented by OpenAI Codex GPT-5
  */
 void advanced_sea_evaluate(
@@ -68,7 +98,12 @@ void advanced_sea_evaluate(
         return;
     }
 
-    set_safe_output(output);
+    set_default_output(output);
+
+    if (input->sensor_fault) {
+        set_sensor_fault_output(output);
+        return;
+    }
 
     if (!input->unlock_request) {
         return;
@@ -82,8 +117,5 @@ void advanced_sea_evaluate(
         return;
     }
 
-    output->keep_locked = true;
-    output->unlock_allowed = false;
-    output->cluster_warning = true;
-    output->audible_warning = true;
+    set_hazard_block_output(output);
 }

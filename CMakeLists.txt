@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(ChildLockSystem LANGUAGES C CXX)
 
-include(FetchContent)
-
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -43,18 +41,9 @@ if(ENABLE_COVERAGE)
 endif()
 add_test(NAME RescueLogicTest COMMAND test_rescue)
 
-FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
-)
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
-
-include(GoogleTest)
-
-add_executable(test_advanced_sea test/test_advanced_sea.cpp)
-target_link_libraries(test_advanced_sea PRIVATE advanced_sea GTest::gtest_main)
+add_executable(test_advanced_sea test/test_advanced_sea.c)
+target_link_libraries(test_advanced_sea PRIVATE advanced_sea)
 if(ENABLE_COVERAGE)
     target_link_libraries(test_advanced_sea PRIVATE coverage_flags)
 endif()
-gtest_discover_tests(test_advanced_sea)
+add_test(NAME AdvancedSeaLogicTest COMMAND test_advanced_sea)
