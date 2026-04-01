@@ -67,7 +67,7 @@ private:
         return (ctx.accel_l > G_THRESHOLD) && (ctx.accel_r > G_THRESHOLD);
     }
 
-    void handleRearHazard(const VehicleContext& ctx) const
+    static void handleRearHazard(const VehicleContext& ctx)
     {
         if (!ctx.rear_hazard) {
             return;
