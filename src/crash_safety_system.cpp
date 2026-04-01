@@ -31,7 +31,7 @@ private:
     }
 
 public:
-    void processSafetyProtocol(const VehicleContext& ctx)
+    void processSafetyProtocol(const VehicleContext& ctx) const
     {
         std::cout << "\n[" << ctx.scenario_id << "] 시퀀스 모니터링 시작" << std::endl;
         std::cout << std::fixed << std::setprecision(1);
